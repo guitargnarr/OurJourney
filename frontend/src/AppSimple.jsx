@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { format, formatDistanceToNow } from 'date-fns'
-import { Heart, Plus, Target, Sparkles, Trophy, Star, ChevronRight } from 'lucide-react'
+import { Heart, Plus, Target, Sparkles, Trophy, Star, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
 import { styles } from './styles'
+import Calendar from './Calendar'
 
 const API_URL = 'http://localhost:3001/api'
 
@@ -117,6 +118,15 @@ function AppSimple() {
               }}
             >
               Timeline
+            </button>
+            <button
+              onClick={() => setActiveView('calendar')}
+              style={{
+                ...styles.navButton,
+                ...(activeView === 'calendar' ? styles.navButtonActive : {})
+              }}
+            >
+              Calendar
             </button>
           </nav>
 
@@ -251,6 +261,10 @@ function AppSimple() {
               </div>
             </div>
           </div>
+        )}
+
+        {activeView === 'calendar' && (
+          <Calendar />
         )}
 
         {activeView === 'timeline' && (

@@ -22,7 +22,7 @@ export async function initializeDatabase() {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS entries (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      type TEXT NOT NULL CHECK(type IN ('goal', 'event', 'memory', 'ritual', 'feeling', 'idea')),
+      type TEXT NOT NULL CHECK(type IN ('goal', 'event', 'memory', 'ritual', 'feeling', 'idea', 'date')),
       title TEXT NOT NULL,
       content TEXT,
       category TEXT,
@@ -32,11 +32,18 @@ export async function initializeDatabase() {
       -- Temporal fields for countdown and tracking
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       target_date DATE,
+      target_time TEXT, -- Store time separately for calendar events
+      end_date DATE, -- For multi-day events
       completed_at DATETIME,
+      
+      -- Calendar-specific fields
+      location TEXT,
+      recurrence TEXT, -- 'none', 'weekly', 'monthly', 'yearly'
+      reminder_minutes INTEGER DEFAULT 0,
       
       -- Progress tracking for goals
       progress INTEGER DEFAULT 0 CHECK(progress >= 0 AND progress <= 100),
-      status TEXT DEFAULT 'active' CHECK(status IN ('active', 'completed', 'archived')),
+      status TEXT DEFAULT 'active' CHECK(status IN ('active', 'completed', 'archived', 'cancelled')),
       
       -- Engagement tracking
       likes INTEGER DEFAULT 0,

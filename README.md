@@ -15,6 +15,7 @@ A research-based relationship tool that combines the visual appeal of a vision b
 - **Quick Capture** (<30 seconds): Natural language input that auto-detects types
 - **Smart Categorization**: Automatically identifies goals, events, memories, feelings
 - **Timeline View**: See your relationship journey over time
+- **Calendar System**: Visual monthly calendar for scheduling dates and events
 - **Export for ChatGPT**: One-click export for relationship insights
 
 ## 🚀 Getting Started
@@ -66,7 +67,19 @@ Type naturally in the input bar:
 ### Views
 - **Dashboard**: See next adventure, active goals, recent memories
 - **Timeline**: Visual journey of your relationship
-- **Goals**: Track all goals with progress bars
+- **Calendar**: Monthly view with all scheduled dates and events
+- **Goals**: Track all goals with progress bars (access via Dashboard)
+
+### Calendar Features
+- **Monthly Grid View**: See your entire month at a glance
+- **Event Creation**: Click "Add Event" to schedule dates with:
+  - Date and time selection
+  - Location tracking
+  - Description notes
+  - Recurring event options (weekly, monthly, yearly)
+- **Day Details**: Click any date to see all events for that day
+- **Visual Planning**: Events show directly on calendar with times
+- **Today Highlighting**: Current date marked for easy reference
 
 ### Weekly Ritual
 Every Sunday, you'll see a prompt for your weekly check-in:
@@ -87,7 +100,8 @@ The SQLite database tracks everything with temporal awareness:
 ```sql
 entries (
   id, type, title, content, category, mood,
-  created_at, target_date, completed_at,
+  created_at, target_date, target_time, end_date, completed_at,
+  location, recurrence, reminder_minutes,
   progress, status, likes, tags, media_url
 )
 

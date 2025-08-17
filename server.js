@@ -207,6 +207,79 @@ app.put('/api/rituals/:id', async (req, res) => {
   }
 });
 
+// ============= CALENDAR ROUTES =============
+
+// Get events for a specific month
+app.get('/api/calendar/month/:year/:month', async (req, res) => {
+  try {
+    const { year, month } = req.params;
+    const db = await openDb();
+    
+    // Get all events for the month
+    const events = await db.all(
+      `SELECT * FROM entries 
+       WHERE (type IN ('event', 'date') 
+       AND strftime('%Y-%m', target_date) = ?)
+       OR (end_date IS NOT NULL 
+       AND target_date <= date(?, '+1 month', '-1 day')
+       AND end_date >= date(?))
+       ORDER BY target_date, target_time`,
+      [`${year}-${month.padStart(2, '0')}`, `${year}-${month.padStart(2, '0')}-01`, `${year}-${month.padStart(2, '0')}-01`]
+    );
+    
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get events for a specific day
+app.get('/api/calendar/day/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    const db = await openDb();
+    
+    const events = await db.all(
+      `SELECT * FROM entries 
+       WHERE (type IN ('event', 'date', 'goal') 
+       AND DATE(target_date) = DATE(?))
+       OR (end_date IS NOT NULL 
+       AND DATE(?) BETWEEN DATE(target_date) AND DATE(end_date))
+       ORDER BY target_time`,
+      [date, date]
+    );
+    
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create a calendar event
+app.post('/api/calendar/event', async (req, res) => {
+  try {
+    const db = await openDb();
+    const { 
+      title, content, target_date, target_time, 
+      end_date, location, recurrence, reminder_minutes 
+    } = req.body;
+    
+    const result = await db.run(
+      `INSERT INTO entries 
+       (type, title, content, target_date, target_time, end_date, 
+        location, recurrence, reminder_minutes, category)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ['date', title, content, target_date, target_time, end_date, 
+       location, recurrence || 'none', reminder_minutes || 0, 'Calendar']
+    );
+    
+    const newEvent = await db.get('SELECT * FROM entries WHERE id = ?', result.lastID);
+    res.json(newEvent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============= INSIGHTS ROUTES =============
 
 // Get timeline data
