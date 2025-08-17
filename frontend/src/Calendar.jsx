@@ -12,6 +12,7 @@ function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(null)
   const [events, setEvents] = useState([])
+  const [custodyData, setCustodyData] = useState([])
   const [showEventForm, setShowEventForm] = useState(false)
   const [dayEvents, setDayEvents] = useState([])
   
@@ -40,7 +41,8 @@ function Calendar() {
       const year = currentDate.getFullYear()
       const month = currentDate.getMonth() + 1
       const res = await axios.get(`${API_URL}/calendar/month/${year}/${month}`)
-      setEvents(res.data || [])
+      setEvents(res.data.events || [])
+      setCustodyData(res.data.custody || [])
     } catch (error) {
       console.error('Error loading month events:', error)
     }
@@ -118,6 +120,13 @@ function Calendar() {
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
     const dateStr = formatDateForAPI(date)
     return events.filter(event => event.target_date === dateStr)
+  }
+  
+  const getCustodyForDay = (day) => {
+    if (!day) return null
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+    const dateStr = formatDateForAPI(date)
+    return custodyData.find(c => c.date === dateStr)
   }
 
   const navigateMonth = (direction) => {
@@ -286,6 +295,7 @@ function Calendar() {
         <div style={calendarStyles.days}>
           {getDaysInMonth().map((day, index) => {
             const dayEvents = getEventsForDay(day)
+            const custody = getCustodyForDay(day)
             const isSelectedDay = selectedDate && 
               selectedDate.getDate() === day &&
               selectedDate.getMonth() === currentDate.getMonth()
@@ -298,6 +308,7 @@ function Calendar() {
                   ...(day ? {} : { border: 'none', cursor: 'default' }),
                   ...(isToday(day) ? calendarStyles.dayToday : {}),
                   ...(isSelectedDay ? calendarStyles.daySelected : {}),
+                  ...(custody?.isYourDay ? { backgroundColor: '#e0f2fe' } : {}),
                 }}
                 onClick={() => {
                   if (day) {
@@ -308,7 +319,21 @@ function Calendar() {
               >
                 {day && (
                   <>
-                    <div style={calendarStyles.dayNumber}>{day}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                      <div style={calendarStyles.dayNumber}>{day}</div>
+                      {custody && (
+                        <div style={{
+                          fontSize: '0.65rem',
+                          padding: '2px 4px',
+                          borderRadius: '3px',
+                          backgroundColor: custody.isYourDay ? '#0ea5e9' : '#f3f4f6',
+                          color: custody.isYourDay ? 'white' : '#6b7280',
+                          fontWeight: '500'
+                        }}>
+                          {custody.isYourDay ? 'Child' : 'Free'}
+                        </div>
+                      )}
+                    </div>
                     {dayEvents.length > 0 && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {dayEvents
