@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { format, formatDistanceToNow } from 'date-fns'
-import { Heart, Plus, Target, Sparkles, Trophy, Star, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
+import { Heart, Plus, Target, Sparkles, Trophy, Star, ChevronRight, Calendar as CalendarIcon, Lightbulb, Brain, Zap } from 'lucide-react'
 import { styles } from './styles'
 import Calendar from './Calendar'
 
@@ -19,6 +19,7 @@ function AppSimple() {
   const [entries, setEntries] = useState([])
   const [nextAdventure, setNextAdventure] = useState(null)
   const [stats, setStats] = useState(null)
+  const [nextDateNights, setNextDateNights] = useState([])
   const [quickInput, setQuickInput] = useState('')
   const [activeView, setActiveView] = useState('dashboard')
 
@@ -30,15 +31,17 @@ function AppSimple() {
 
   const loadDashboard = async () => {
     try {
-      const [entriesRes, adventureRes, statsRes] = await Promise.all([
+      const [entriesRes, adventureRes, statsRes, dateNightsRes] = await Promise.all([
         axios.get(`${API_URL}/entries?limit=20`),
         axios.get(`${API_URL}/anticipation/next`),
-        axios.get(`${API_URL}/insights/stats`)
+        axios.get(`${API_URL}/insights/stats`),
+        axios.get(`${API_URL}/custody/next-date-nights?count=3`)
       ])
       
       setEntries(entriesRes.data || [])
       setNextAdventure(adventureRes.data)
       setStats(statsRes.data || {})
+      setNextDateNights(dateNightsRes.data || [])
     } catch (error) {
       console.error('Error loading dashboard:', error)
     }
@@ -58,18 +61,33 @@ function AppSimple() {
       
       // Enhanced calendar detection patterns
       const calendarPatterns = [
-        /date|dinner|lunch|breakfast|movie|concert|show|tickets?/i,
+        /date night|dinner|lunch|breakfast|movie|concert|show|tickets?/i,
         /tomorrow|tonight|weekend|next \w+day|this \w+day/i,
         /at \d{1,2}(:\d{2})?\s?(am|pm)?/i,
         /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{1,2}/i,
         /\d{1,2}\/\d{1,2}/i
       ]
       
+      // Check if this is specifically a date night request
+      const isDateNight = /date night|just us|alone time|romantic/i.test(originalInput)
+      
       const isCalendarEvent = calendarPatterns.some(pattern => pattern.test(originalInput))
       
       // Parse dates from natural language
-      const parseDate = (text) => {
+      const parseDate = async (text, requireDateNight = false) => {
         const today = new Date()
+        
+        // If it's a date night request, find next available date
+        if (requireDateNight) {
+          try {
+            const dateNightsRes = await axios.get(`${API_URL}/custody/next-date-nights?count=1`)
+            if (dateNightsRes.data && dateNightsRes.data.length > 0) {
+              return dateNightsRes.data[0].date
+            }
+          } catch (error) {
+            console.error('Error getting date nights:', error)
+          }
+        }
         
         if (/tomorrow/i.test(text)) {
           const tomorrow = new Date(today)
@@ -146,14 +164,22 @@ function AppSimple() {
       // Determine type and extract data
       if (input.includes('goal') || input.includes('want to') || input.includes('save for')) {
         type = 'goal'
-      } else if (isCalendarEvent) {
+      } else if (isCalendarEvent || isDateNight) {
         type = 'date'
-        targetDate = parseDate(originalInput)
+        targetDate = await parseDate(originalInput, isDateNight)
         targetTime = parseTime(originalInput)
         location = parseLocation(originalInput)
+        
+        // Add note if it's a date night on a free evening
+        if (isDateNight && targetDate) {
+          const custodyRes = await axios.get(`${API_URL}/custody/status/${targetDate}`)
+          if (custodyRes.data && !custodyRes.data.isYourDay) {
+            // Good to go - it's a free evening!
+          }
+        }
       } else if (input.includes('plan') || input.includes('going to')) {
         type = 'event'
-        targetDate = parseDate(originalInput)
+        targetDate = await parseDate(originalInput)
       } else if (input.includes('remember') || input.includes('today we') || input.includes('just')) {
         type = 'memory'
       } else if (input.includes('feeling') || input.includes('grateful') || input.includes('happy')) {
@@ -203,6 +229,7 @@ function AppSimple() {
 
   const goals = entries.filter(e => e.type === 'goal' && e.status === 'active')
   const memories = entries.filter(e => e.type === 'memory')
+  const ideas = entries.filter(e => e.type === 'idea').sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
   return (
     <div style={styles.container}>
@@ -244,6 +271,15 @@ function AppSimple() {
               }}
             >
               Calendar
+            </button>
+            <button
+              onClick={() => setActiveView('ideas')}
+              style={{
+                ...styles.navButton,
+                ...(activeView === 'ideas' ? styles.navButtonActive : {})
+              }}
+            >
+              Ideas
             </button>
           </nav>
 
@@ -306,6 +342,52 @@ function AppSimple() {
                     <div style={{ fontSize: '14px' }}>days to go!</div>
                   </div>
                 </div>
+              </div>
+            )}
+            
+            {/* Date Night Opportunities */}
+            {nextDateNights.length > 0 && (
+              <div style={{
+                ...styles.card,
+                background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                color: 'white',
+                marginBottom: '1rem'
+              }}>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  marginBottom: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  💕 Next Date Night Opportunities
+                </h3>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {nextDateNights.map((night, i) => (
+                    <div 
+                      key={i}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <div style={{ fontWeight: '600' }}>
+                        {night.dayName}, {new Date(night.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </div>
+                      <div style={{ fontSize: '12px', opacity: 0.9 }}>
+                        {night.daysAway === 0 ? 'Tonight!' : 
+                         night.daysAway === 1 ? 'Tomorrow' : 
+                         `In ${night.daysAway} days`}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ fontSize: '12px', marginTop: '1rem', opacity: 0.9 }}>
+                  These evenings you're free (Sage is with mom)
+                </p>
               </div>
             )}
 
@@ -428,6 +510,235 @@ function AppSimple() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {activeView === 'ideas' && (
+          <div>
+            {/* Quick Idea Capture Card */}
+            <div style={{
+              ...styles.card,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              marginBottom: '1.5rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
+                <Lightbulb size={28} />
+                <div>
+                  <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Quick Idea Capture</h2>
+                  <p style={{ fontSize: '14px', opacity: 0.9, margin: 0 }}>Don't let that spark fade away!</p>
+                </div>
+              </div>
+              
+              <form onSubmit={async (e) => {
+                e.preventDefault()
+                const ideaInput = e.target.idea.value
+                if (!ideaInput.trim()) return
+                
+                try {
+                  await axios.post(`${API_URL}/entries`, {
+                    type: 'idea',
+                    title: ideaInput,
+                    content: '',
+                    category: 'Ideas',
+                    mood: 'thoughtful'
+                  })
+                  e.target.idea.value = ''
+                  loadDashboard()
+                } catch (error) {
+                  console.error('Error creating idea:', error)
+                }
+              }}>
+                <textarea
+                  name="idea"
+                  placeholder="What's on your mind? A date idea, a goal, a place to visit, something to try together..."
+                  style={{
+                    width: '100%',
+                    minHeight: '100px',
+                    padding: '12px',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    color: 'white',
+                    fontSize: '16px',
+                    resize: 'vertical',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    marginTop: '12px',
+                    padding: '10px 24px',
+                    backgroundColor: 'white',
+                    color: '#667eea',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <Zap size={18} />
+                  Capture Idea
+                </button>
+              </form>
+            </div>
+
+            {/* Ideas Grid */}
+            <div style={styles.card}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                marginBottom: '1.5rem', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px' 
+              }}>
+                <Brain size={20} color="#8b5cf6" />
+                Your Ideas Bank
+                <span style={{ 
+                  marginLeft: 'auto', 
+                  fontSize: '14px', 
+                  color: '#6b7280',
+                  fontWeight: 'normal'
+                }}>
+                  {ideas.length} ideas captured
+                </span>
+              </h3>
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '1rem'
+              }}>
+                {ideas.length === 0 ? (
+                  <div style={{
+                    gridColumn: '1 / -1',
+                    textAlign: 'center',
+                    padding: '3rem',
+                    color: '#9ca3af'
+                  }}>
+                    <Lightbulb size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+                    <p>No ideas yet. Start capturing your thoughts above!</p>
+                  </div>
+                ) : (
+                  ideas.map(idea => (
+                    <div
+                      key={idea.id}
+                      style={{
+                        padding: '1rem',
+                        backgroundColor: '#faf5ff',
+                        border: '1px solid #e9d5ff',
+                        borderRadius: '8px',
+                        position: 'relative',
+                        transition: 'all 0.2s',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.15)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: '50%',
+                        animation: 'pulse 2s infinite'
+                      }} />
+                      
+                      <h4 style={{ 
+                        fontWeight: '500', 
+                        margin: '0 0 8px 0',
+                        color: '#6b21a8',
+                        paddingRight: '20px'
+                      }}>
+                        {idea.title}
+                      </h4>
+                      
+                      {idea.content && (
+                        <p style={{ 
+                          fontSize: '14px', 
+                          color: '#7c3aed', 
+                          margin: '0 0 12px 0',
+                          opacity: 0.8
+                        }}>
+                          {idea.content}
+                        </p>
+                      )}
+                      
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#a78bfa',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span>
+                          {formatDistanceToNow(new Date(idea.created_at), { addSuffix: true })}
+                        </span>
+                        
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            if (confirm('Convert this idea to a goal?')) {
+                              await axios.put(`${API_URL}/entries/${idea.id}`, { 
+                                type: 'goal',
+                                progress: 0
+                              })
+                              loadDashboard()
+                            }
+                          }}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#8b5cf6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Target size={12} />
+                          Make Goal
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            
+            {/* Add pulse animation */}
+            <style>{`
+              @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+              }
+            `}</style>
           </div>
         )}
       </main>

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { initializeDatabase, openDb, queries } from './database.js';
 import { format, addDays, startOfWeek, differenceInDays } from 'date-fns';
+import { getCustodyStatus, getMonthCustody, getNextDateNights } from './custodySchedule.js';
 
 const app = express();
 const PORT = 3001;
@@ -107,6 +108,32 @@ app.post('/api/entries/:id/complete', async (req, res) => {
     
     const completed = await db.get('SELECT * FROM entries WHERE id = ?', id);
     res.json(completed);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============= CUSTODY ROUTES =============
+
+// Get custody status for a specific date
+app.get('/api/custody/status/:date', (req, res) => {
+  try {
+    const status = getCustodyStatus(req.params.date);
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get next available date nights
+app.get('/api/custody/next-date-nights', (req, res) => {
+  try {
+    const { from, count } = req.query;
+    const dateNights = getNextDateNights(
+      from || new Date(),
+      parseInt(count) || 5
+    );
+    res.json(dateNights);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -227,7 +254,13 @@ app.get('/api/calendar/month/:year/:month', async (req, res) => {
       [`${year}-${month.padStart(2, '0')}`, `${year}-${month.padStart(2, '0')}-01`, `${year}-${month.padStart(2, '0')}-01`]
     );
     
-    res.json(events);
+    // Add custody information for the month
+    const custodySchedule = getMonthCustody(parseInt(year), parseInt(month) - 1);
+    
+    res.json({
+      events,
+      custody: custodySchedule
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
