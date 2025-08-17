@@ -173,7 +173,7 @@ function Calendar() {
       gap: '0.5rem',
     },
     day: {
-      minHeight: '80px',
+      minHeight: '90px',
       padding: '0.5rem',
       border: '1px solid #e5e7eb',
       borderRadius: '0.5rem',
@@ -181,6 +181,9 @@ function Calendar() {
       position: 'relative',
       backgroundColor: '#ffffff',
       transition: 'all 0.2s',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
     },
     dayToday: {
       backgroundColor: '#fef3c7',
@@ -307,16 +310,47 @@ function Calendar() {
                   <>
                     <div style={calendarStyles.dayNumber}>{day}</div>
                     {dayEvents.length > 0 && (
-                      <div>
-                        {dayEvents.slice(0, 3).map((event, i) => (
-                          <div key={i} style={{ fontSize: '0.75rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {event.target_time && `${event.target_time} `}
-                            {event.title}
-                          </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        {dayEvents
+                          .sort((a, b) => {
+                            // Sort by time if available, otherwise by title
+                            if (a.target_time && b.target_time) {
+                              return a.target_time.localeCompare(b.target_time)
+                            }
+                            return 0
+                          })
+                          .slice(0, 2)
+                          .map((event, i) => (
+                            <div 
+                              key={event.id || i} 
+                              style={{ 
+                                fontSize: '0.7rem', 
+                                lineHeight: '1.1',
+                                padding: '2px 4px',
+                                backgroundColor: event.type === 'date' ? '#e0e7ff' : '#fef3c7',
+                                borderRadius: '3px',
+                                color: '#4b5563', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis', 
+                                whiteSpace: 'nowrap' 
+                              }}
+                            >
+                              {event.target_time && (
+                                <span style={{ fontWeight: '600', marginRight: '4px' }}>
+                                  {event.target_time}
+                                </span>
+                              )}
+                              {event.title.length > 15 ? event.title.substring(0, 15) + '...' : event.title}
+                            </div>
                         ))}
-                        {dayEvents.length > 3 && (
-                          <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                            +{dayEvents.length - 3} more
+                        {dayEvents.length > 2 && (
+                          <div style={{ 
+                            fontSize: '0.65rem', 
+                            color: '#9ca3af',
+                            padding: '2px 4px',
+                            fontStyle: 'italic'
+                          }}>
+                            +{dayEvents.length - 2} more
                           </div>
                         )}
                       </div>

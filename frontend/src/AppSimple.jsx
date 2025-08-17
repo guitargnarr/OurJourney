@@ -50,26 +50,143 @@ function AppSimple() {
 
     try {
       const input = quickInput.toLowerCase()
+      const originalInput = quickInput
       let type = 'idea'
+      let targetDate = null
+      let targetTime = null
+      let location = null
       
-      if (input.includes('goal') || input.includes('want to')) {
+      // Enhanced calendar detection patterns
+      const calendarPatterns = [
+        /date|dinner|lunch|breakfast|movie|concert|show|tickets?/i,
+        /tomorrow|tonight|weekend|next \w+day|this \w+day/i,
+        /at \d{1,2}(:\d{2})?\s?(am|pm)?/i,
+        /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{1,2}/i,
+        /\d{1,2}\/\d{1,2}/i
+      ]
+      
+      const isCalendarEvent = calendarPatterns.some(pattern => pattern.test(originalInput))
+      
+      // Parse dates from natural language
+      const parseDate = (text) => {
+        const today = new Date()
+        
+        if (/tomorrow/i.test(text)) {
+          const tomorrow = new Date(today)
+          tomorrow.setDate(today.getDate() + 1)
+          return tomorrow.toISOString().split('T')[0]
+        }
+        
+        if (/tonight/i.test(text)) {
+          return today.toISOString().split('T')[0]
+        }
+        
+        if (/this weekend|saturday|sunday/i.test(text)) {
+          const daysUntilSaturday = (6 - today.getDay() + 7) % 7 || 7
+          const weekend = new Date(today)
+          weekend.setDate(today.getDate() + daysUntilSaturday)
+          if (/sunday/i.test(text)) {
+            weekend.setDate(weekend.getDate() + 1)
+          }
+          return weekend.toISOString().split('T')[0]
+        }
+        
+        // Try to extract MM/DD format
+        const dateMatch = text.match(/(\d{1,2})\/(\d{1,2})/)
+        if (dateMatch) {
+          const month = parseInt(dateMatch[1])
+          const day = parseInt(dateMatch[2])
+          const year = today.getFullYear()
+          const date = new Date(year, month - 1, day)
+          if (date < today) {
+            date.setFullYear(year + 1)
+          }
+          return date.toISOString().split('T')[0]
+        }
+        
+        return null
+      }
+      
+      // Parse time from natural language
+      const parseTime = (text) => {
+        const timeMatch = text.match(/at (\d{1,2})(:(\d{2}))?\s?(am|pm)?/i)
+        if (timeMatch) {
+          let hours = parseInt(timeMatch[1])
+          const minutes = timeMatch[3] || '00'
+          const period = timeMatch[4]
+          
+          if (period) {
+            if (period.toLowerCase() === 'pm' && hours < 12) {
+              hours += 12
+            } else if (period.toLowerCase() === 'am' && hours === 12) {
+              hours = 0
+            }
+          }
+          
+          return `${String(hours).padStart(2, '0')}:${minutes}`
+        }
+        
+        // Common meal times
+        if (/breakfast/i.test(text)) return '09:00'
+        if (/lunch/i.test(text)) return '12:00'
+        if (/dinner/i.test(text)) return '19:00'
+        
+        return null
+      }
+      
+      // Parse location
+      const parseLocation = (text) => {
+        const locationMatch = text.match(/at ([^0-9][^,]+?)(?:\s+at\s+|\s+on\s+|$)/i)
+        if (locationMatch && !/(\d{1,2}(:\d{2})?\s?(am|pm)?)/i.test(locationMatch[1])) {
+          return locationMatch[1].trim()
+        }
+        return null
+      }
+      
+      // Determine type and extract data
+      if (input.includes('goal') || input.includes('want to') || input.includes('save for')) {
         type = 'goal'
+      } else if (isCalendarEvent) {
+        type = 'date'
+        targetDate = parseDate(originalInput)
+        targetTime = parseTime(originalInput)
+        location = parseLocation(originalInput)
       } else if (input.includes('plan') || input.includes('going to')) {
         type = 'event'
-      } else if (input.includes('remember') || input.includes('today')) {
+        targetDate = parseDate(originalInput)
+      } else if (input.includes('remember') || input.includes('today we') || input.includes('just')) {
         type = 'memory'
+      } else if (input.includes('feeling') || input.includes('grateful') || input.includes('happy')) {
+        type = 'feeling'
       }
-
-      await axios.post(`${API_URL}/entries`, {
+      
+      // Clean up title (remove parsed date/time/location for calendar events)
+      let title = originalInput
+      if (type === 'date' && targetTime) {
+        title = title.replace(/at \d{1,2}(:\d{2})?\s?(am|pm)?/i, '').trim()
+      }
+      
+      const entryData = {
         type,
-        title: quickInput,
+        title,
         content: '',
         category: 'General',
         mood: 'neutral'
-      })
+      }
+      
+      if (targetDate) entryData.target_date = targetDate
+      if (targetTime) entryData.target_time = targetTime
+      if (location) entryData.location = location
+
+      await axios.post(`${API_URL}/entries`, entryData)
       
       setQuickInput('')
       loadDashboard()
+      
+      // If calendar event was created, switch to calendar view
+      if (type === 'date') {
+        setActiveView('calendar')
+      }
     } catch (error) {
       console.error('Error creating entry:', error)
     }
@@ -153,7 +270,7 @@ function AppSimple() {
               type="text"
               value={quickInput}
               onChange={(e) => setQuickInput(e.target.value)}
-              placeholder="Quick capture: Type a goal, plan, memory, or feeling..."
+              placeholder="Try: 'Dinner tomorrow at 7pm' or 'Concert tickets for 11/12' or 'Goal: Save $5000'"
               style={styles.quickCaptureInput}
             />
             <button type="submit" style={styles.quickCaptureButton}>
