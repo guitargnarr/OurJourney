@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { ChevronLeft, ChevronRight, Plus, MapPin, Clock, Calendar as CalendarIcon } from 'lucide-react'
 
-const API_URL = 'http://localhost:3001/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_ENDPOINT = `${API_URL}/api`
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -40,7 +41,7 @@ function Calendar() {
     try {
       const year = currentDate.getFullYear()
       const month = currentDate.getMonth() + 1
-      const res = await axios.get(`${API_URL}/calendar/month/${year}/${month}`)
+      const res = await axios.get(`${API_ENDPOINT}/calendar/month/${year}/${month}`)
       setEvents(res.data.events || [])
       setCustodyData(res.data.custody || [])
     } catch (error) {
@@ -51,7 +52,7 @@ function Calendar() {
   const loadDayEvents = async (date) => {
     try {
       const dateStr = formatDateForAPI(date)
-      const res = await axios.get(`${API_URL}/calendar/day/${dateStr}`)
+      const res = await axios.get(`${API_ENDPOINT}/calendar/day/${dateStr}`)
       setDayEvents(res.data || [])
     } catch (error) {
       console.error('Error loading day events:', error)
@@ -68,7 +69,7 @@ function Calendar() {
   const handleCreateEvent = async (e) => {
     e.preventDefault()
     try {
-      await axios.post(`${API_URL}/calendar/event`, {
+      await axios.post(`${API_ENDPOINT}/calendar/event`, {
         ...newEvent,
         target_date: selectedDate ? formatDateForAPI(selectedDate) : newEvent.target_date
       })

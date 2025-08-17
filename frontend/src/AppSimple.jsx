@@ -4,8 +4,10 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { Heart, Plus, Target, Sparkles, Trophy, Star, ChevronRight, Calendar as CalendarIcon, Lightbulb, Brain, Zap } from 'lucide-react'
 import { styles } from './styles'
 import Calendar from './Calendar'
+import Login from './Login'
 
-const API_URL = 'http://localhost:3001/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_ENDPOINT = `${API_URL}/api`
 
 const MOODS = {
   excited: '🤩',
@@ -16,12 +18,37 @@ const MOODS = {
 }
 
 function AppSimple() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authToken, setAuthToken] = useState(null)
   const [entries, setEntries] = useState([])
   const [nextAdventure, setNextAdventure] = useState(null)
   const [stats, setStats] = useState(null)
   const [nextDateNights, setNextDateNights] = useState([])
   const [quickInput, setQuickInput] = useState('')
   const [activeView, setActiveView] = useState('dashboard')
+  
+  // Check for existing auth on mount
+  useEffect(() => {
+    const token = localStorage.getItem('ourjourney_token')
+    if (token) {
+      setAuthToken(token)
+      setIsAuthenticated(true)
+      // Set default auth header
+      axios.defaults.headers.common['X-Auth-Password'] = token
+    }
+  }, [])
+  
+  const handleLogin = (token) => {
+    setAuthToken(token)
+    setIsAuthenticated(true)
+    // Set default auth header for all requests
+    axios.defaults.headers.common['X-Auth-Password'] = token
+  }
+  
+  // Show login if not authenticated
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />
+  }
 
   useEffect(() => {
     loadDashboard()
@@ -32,10 +59,10 @@ function AppSimple() {
   const loadDashboard = async () => {
     try {
       const [entriesRes, adventureRes, statsRes, dateNightsRes] = await Promise.all([
-        axios.get(`${API_URL}/entries?limit=20`),
-        axios.get(`${API_URL}/anticipation/next`),
-        axios.get(`${API_URL}/insights/stats`),
-        axios.get(`${API_URL}/custody/next-date-nights?count=3`)
+        axios.get(`${API_ENDPOINT}/entries?limit=20`),
+        axios.get(`${API_ENDPOINT}/anticipation/next`),
+        axios.get(`${API_ENDPOINT}/insights/stats`),
+        axios.get(`${API_ENDPOINT}/custody/next-date-nights?count=3`)
       ])
       
       setEntries(entriesRes.data || [])
@@ -80,7 +107,7 @@ function AppSimple() {
         // If it's a date night request, find next available date
         if (requireDateNight) {
           try {
-            const dateNightsRes = await axios.get(`${API_URL}/custody/next-date-nights?count=1`)
+            const dateNightsRes = await axios.get(`${API_ENDPOINT}/custody/next-date-nights?count=1`)
             if (dateNightsRes.data && dateNightsRes.data.length > 0) {
               return dateNightsRes.data[0].date
             }
@@ -172,7 +199,7 @@ function AppSimple() {
         
         // Add note if it's a date night on a free evening
         if (isDateNight && targetDate) {
-          const custodyRes = await axios.get(`${API_URL}/custody/status/${targetDate}`)
+          const custodyRes = await axios.get(`${API_ENDPOINT}/custody/status/${targetDate}`)
           if (custodyRes.data && !custodyRes.data.isYourDay) {
             // Good to go - it's a free evening!
           }
@@ -204,7 +231,7 @@ function AppSimple() {
       if (targetTime) entryData.target_time = targetTime
       if (location) entryData.location = location
 
-      await axios.post(`${API_URL}/entries`, entryData)
+      await axios.post(`${API_ENDPOINT}/entries`, entryData)
       
       setQuickInput('')
       loadDashboard()
@@ -220,7 +247,7 @@ function AppSimple() {
 
   const updateProgress = async (id, progress) => {
     try {
-      await axios.put(`${API_URL}/entries/${id}`, { progress })
+      await axios.put(`${API_ENDPOINT}/entries/${id}`, { progress })
       loadDashboard()
     } catch (error) {
       console.error('Error updating progress:', error)
@@ -536,7 +563,7 @@ function AppSimple() {
                 if (!ideaInput.trim()) return
                 
                 try {
-                  await axios.post(`${API_URL}/entries`, {
+                  await axios.post(`${API_ENDPOINT}/entries`, {
                     type: 'idea',
                     title: ideaInput,
                     content: '',
@@ -701,7 +728,7 @@ function AppSimple() {
                           onClick={async (e) => {
                             e.stopPropagation()
                             if (confirm('Convert this idea to a goal?')) {
-                              await axios.put(`${API_URL}/entries/${idea.id}`, { 
+                              await axios.put(`${API_ENDPOINT}/entries/${idea.id}`, { 
                                 type: 'goal',
                                 progress: 0
                               })
