@@ -34,7 +34,7 @@ function AppSimple() {
       setAuthToken(token)
       setIsAuthenticated(true)
       // Set default auth header
-      axios.defaults.headers.common['X-Auth-Password'] = token
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
     }
   }, [])
   
@@ -42,7 +42,7 @@ function AppSimple() {
     setAuthToken(token)
     setIsAuthenticated(true)
     // Set default auth header for all requests
-    axios.defaults.headers.common['X-Auth-Password'] = token
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
   }
   
   // Show login if not authenticated
