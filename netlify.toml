@@ -4,8 +4,8 @@
   # Specify the base directory where the frontend lives
   base = "frontend"
   
-  # Build command
-  command = "npm run build"
+  # Build command - install all deps including devDependencies
+  command = "npm ci --include=dev && npm run build"
   
   # Directory to deploy (relative to base)
   publish = "dist"
