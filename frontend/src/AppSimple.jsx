@@ -5,6 +5,7 @@ import { Heart, Plus, Target, Sparkles, Trophy, Star, ChevronRight, Calendar as 
 import { styles } from './styles'
 import Calendar from './Calendar'
 import Login from './Login'
+import { debugLocalStorage } from './utils/debug'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const API_ENDPOINT = `${API_URL}/api`
@@ -29,12 +30,31 @@ function AppSimple() {
   
   // Check for existing auth on mount
   useEffect(() => {
-    const token = localStorage.getItem('ourjourney_token')
-    if (token) {
-      setAuthToken(token)
-      setIsAuthenticated(true)
-      // Set default auth header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    // Debug localStorage on mount (only in development)
+    if (import.meta.env.DEV) {
+      debugLocalStorage()
+    }
+    
+    try {
+      const token = localStorage.getItem('ourjourney_token')
+      if (token) {
+        // Verify token is not expired or malformed
+        const parts = token.split('.')
+        if (parts.length !== 3) {
+          console.error('Invalid token format, clearing...')
+          localStorage.removeItem('ourjourney_token')
+          return
+        }
+        
+        setAuthToken(token)
+        setIsAuthenticated(true)
+        // Set default auth header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      }
+    } catch (error) {
+      console.error('Error checking authentication:', error)
+      // Clear potentially corrupted token
+      localStorage.removeItem('ourjourney_token')
     }
   }, [])
   
@@ -68,7 +88,29 @@ function AppSimple() {
       setNextDateNights(dateNightsRes.data || [])
     } catch (error) {
       console.error('Error loading dashboard:', error)
+      // If we get a 401, clear auth and reload
+      if (error.response?.status === 401) {
+        console.log('Authentication failed, clearing token...')
+        localStorage.removeItem('ourjourney_token')
+        setIsAuthenticated(false)
+        setAuthToken(null)
+        delete axios.defaults.headers.common['Authorization']
+      }
     }
+  }
+  
+  const handleLogout = () => {
+    localStorage.removeItem('ourjourney_token')
+    setIsAuthenticated(false)
+    setAuthToken(null)
+    delete axios.defaults.headers.common['Authorization']
+    // Clear all state
+    setEntries([])
+    setNextAdventure(null)
+    setStats(null)
+    setNextDateNights([])
+    setQuickInput('')
+    setActiveView('dashboard')
   }
 
   const handleQuickCapture = async (e) => {
@@ -312,18 +354,34 @@ function AppSimple() {
             </button>
           </nav>
 
-          {stats && (
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Trophy size={16} color="#eab308" />
-                <span>{stats.goals_completed || 0} completed</span>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {stats && (
+              <div style={{ display: 'flex', gap: '1rem', fontSize: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Trophy size={16} color="#eab308" />
+                  <span>{stats.goals_completed || 0} completed</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Star size={16} color="#3b82f6" />
+                  <span>{stats.memories_created || 0} memories</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Star size={16} color="#3b82f6" />
-                <span>{stats.memories_created || 0} memories</span>
-              </div>
-            </div>
-          )}
+            )}
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '6px 12px',
+                fontSize: '14px',
+                backgroundColor: '#fee2e2',
+                color: '#991b1b',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
