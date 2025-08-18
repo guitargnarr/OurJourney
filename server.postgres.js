@@ -159,25 +159,192 @@ app.delete('/api/entries/:id', requireAuth, async (req, res) => {
 
 // ============= CALENDAR ROUTES =============
 
-app.get('/api/calendar/events', requireAuth, async (req, res) => {
+// Get events for a specific month
+app.get('/api/calendar/month/:year/:month', requireAuth, async (req, res) => {
   try {
-    const { start_date, end_date } = req.query;
+    const { year, month } = req.params;
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    const endDate = `${year}-${String(month).padStart(2, '0')}-31`;
     
-    let query = `SELECT * FROM entries WHERE type = 'date'`;
-    const params = [];
-    let paramIndex = 1;
+    const result = await db.query(
+      `SELECT * FROM entries 
+       WHERE type IN ('date', 'event') 
+       AND target_date BETWEEN $1 AND $2
+       ORDER BY target_date ASC, target_time ASC`,
+      [startDate, endDate]
+    );
     
-    if (start_date && end_date) {
-      query += ` AND target_date BETWEEN $${paramIndex++} AND $${paramIndex++}`;
-      params.push(start_date, end_date);
+    res.json({ events: result.rows });
+  } catch (error) {
+    console.error('Error fetching month events:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get events for a specific day
+app.get('/api/calendar/day/:date', requireAuth, async (req, res) => {
+  try {
+    const { date } = req.params;
+    
+    const result = await db.query(
+      `SELECT * FROM entries 
+       WHERE type IN ('date', 'event') 
+       AND target_date::date = $1::date
+       ORDER BY target_time ASC`,
+      [date]
+    );
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching day events:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create calendar event
+app.post('/api/calendar/events', requireAuth, async (req, res) => {
+  try {
+    const { title, content, target_date, target_time, location } = req.body;
+    
+    const result = await db.query(
+      `INSERT INTO entries (type, title, content, target_date, target_time, location)
+       VALUES ('date', $1, $2, $3, $4, $5)
+       RETURNING *`,
+      [title, content || '', target_date, target_time, location]
+    );
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating calendar event:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update calendar event
+app.put('/api/calendar/events/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, target_date, target_time, location } = req.body;
+    
+    const result = await db.query(
+      `UPDATE entries 
+       SET title = $1, content = $2, target_date = $3, target_time = $4, location = $5
+       WHERE id = $6 AND type IN ('date', 'event')
+       RETURNING *`,
+      [title, content, target_date, target_time, location, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Event not found' });
     }
     
-    query += ' ORDER BY target_date ASC, target_time ASC';
-    
-    const events = await db.all(query, params);
-    res.json(events);
+    res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error fetching calendar events:', error);
+    console.error('Error updating calendar event:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete calendar event  
+app.delete('/api/calendar/events/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await db.query(
+      `DELETE FROM entries WHERE id = $1 AND type IN ('date', 'event') RETURNING id`,
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    
+    res.json({ success: true, id: result.rows[0].id });
+  } catch (error) {
+    console.error('Error deleting calendar event:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============= IDEAS ROUTES =============
+
+// Get all ideas
+app.get('/api/ideas', requireAuth, async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT * FROM entries 
+       WHERE type = 'idea' 
+       ORDER BY created_at DESC`
+    );
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching ideas:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create idea
+app.post('/api/ideas', requireAuth, async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    
+    const result = await db.query(
+      `INSERT INTO entries (type, title, content)
+       VALUES ('idea', $1, $2)
+       RETURNING *`,
+      [title, content || '']
+    );
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating idea:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update idea
+app.put('/api/ideas/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    
+    const result = await db.query(
+      `UPDATE entries 
+       SET title = $1, content = $2
+       WHERE id = $3 AND type = 'idea'
+       RETURNING *`,
+      [title, content, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Idea not found' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating idea:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete idea
+app.delete('/api/ideas/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await db.query(
+      `DELETE FROM entries WHERE id = $1 AND type = 'idea' RETURNING id`,
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Idea not found' });
+    }
+    
+    res.json({ success: true, id: result.rows[0].id });
+  } catch (error) {
+    console.error('Error deleting idea:', error);
     res.status(500).json({ error: error.message });
   }
 });
