@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { initializeDatabase, openDb, queries } from './database.js';
+import { initializeDatabase, db } from './database.postgres.js';
 import { format, addDays, startOfWeek, differenceInDays } from 'date-fns';
 import { getCustodyStatus, getMonthCustody, getNextDateNights } from './custodySchedule.js';
 
