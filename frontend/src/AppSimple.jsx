@@ -38,23 +38,19 @@ function AppSimple() {
     }
   }, [])
   
+  // Load dashboard when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDashboard()
+    }
+  }, [isAuthenticated])
+  
   const handleLogin = (token) => {
     setAuthToken(token)
     setIsAuthenticated(true)
     // Set default auth header for all requests
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
   }
-  
-  // Show login if not authenticated
-  if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />
-  }
-
-  useEffect(() => {
-    loadDashboard()
-    const interval = setInterval(loadDashboard, 30000)
-    return () => clearInterval(interval)
-  }, [])
 
   const loadDashboard = async () => {
     try {
@@ -258,6 +254,11 @@ function AppSimple() {
   const goals = entries.filter(e => e.type === 'goal' && e.status === 'active')
   const memories = entries.filter(e => e.type === 'memory')
   const ideas = entries.filter(e => e.type === 'idea').sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />
+  }
 
   return (
     <div style={styles.container}>
