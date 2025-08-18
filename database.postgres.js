@@ -164,7 +164,9 @@ export async function migrateFromSQLite(sqliteData) {
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
         `, [
           entry.type, entry.title, entry.content, entry.category, entry.mood, entry.author,
-          entry.created_at, entry.target_date, entry.target_time, entry.end_date, entry.completed_at,
+          entry.created_at, entry.target_date, 
+          entry.target_time && entry.target_time !== '' ? entry.target_time : null, // Handle empty time
+          entry.end_date, entry.completed_at,
           entry.location, entry.recurrence || 'none', entry.reminder_minutes || 0,
           entry.progress || 0, entry.status || 'active', entry.likes || 0,
           entry.tags ? JSON.parse(entry.tags) : null, entry.media_url
