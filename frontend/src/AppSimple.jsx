@@ -58,16 +58,17 @@ function AppSimple() {
 
   const loadDashboard = async () => {
     try {
-      const [entriesRes, adventureRes, statsRes, dateNightsRes] = await Promise.all([
+      const [entriesRes, insightsRes, dateNightsRes] = await Promise.all([
         axios.get(`${API_ENDPOINT}/entries?limit=20`),
-        axios.get(`${API_ENDPOINT}/anticipation/next`),
-        axios.get(`${API_ENDPOINT}/insights/stats`),
-        axios.get(`${API_ENDPOINT}/custody/next-date-nights?count=3`)
+        axios.get(`${API_ENDPOINT}/insights`),
+        axios.get(`${API_ENDPOINT}/custody/date-nights`)
       ])
       
       setEntries(entriesRes.data || [])
-      setNextAdventure(adventureRes.data)
-      setStats(statsRes.data || {})
+      // Set next adventure from entries
+      const upcomingEvents = entriesRes.data?.filter(e => e.type === 'event' && e.target_date) || []
+      setNextAdventure(upcomingEvents[0] || null)
+      setStats(insightsRes.data?.stats || {})
       setNextDateNights(dateNightsRes.data || [])
     } catch (error) {
       console.error('Error loading dashboard:', error)
@@ -107,7 +108,7 @@ function AppSimple() {
         // If it's a date night request, find next available date
         if (requireDateNight) {
           try {
-            const dateNightsRes = await axios.get(`${API_ENDPOINT}/custody/next-date-nights?count=1`)
+            const dateNightsRes = await axios.get(`${API_ENDPOINT}/custody/date-nights`)
             if (dateNightsRes.data && dateNightsRes.data.length > 0) {
               return dateNightsRes.data[0].date
             }
