@@ -1,8 +1,8 @@
 # Netlify Configuration for OurJourney
 
 [build]
-  # Build command - install all deps including devDependencies
-  command = "npm ci && npm run build"
+  # Build command - force install all deps including devDependencies
+  command = "NODE_ENV=development npm ci && npm run build"
   
   # Directory to deploy (Vite output)
   publish = "dist"
