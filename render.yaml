@@ -1,20 +1,13 @@
 services:
   - type: web
     name: matthew-scott-portfolio
-    env: static
-    buildCommand: echo "No build required for static site"
-    staticPublishPath: ./
-    pullRequestPreviewsEnabled: true
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
     headers:
       - path: /*
         name: X-Frame-Options
         value: SAMEORIGIN
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: X-XSS-Protection
-        value: 1; mode=block
     routes:
       - type: rewrite
         source: /*
