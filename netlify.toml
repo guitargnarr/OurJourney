@@ -1,84 +1,15 @@
-# Netlify configuration for jaspermatters.com
-
 [build]
   publish = "."
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "SAMEORIGIN"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;"
-
-[[redirects]]
-  from = "https://www.jaspermatters.com/*"
-  to = "https://jaspermatters.com/:splat"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "http://jaspermatters.com/*"
-  to = "https://jaspermatters.com/:splat"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "http://www.jaspermatters.com/*"
-  to = "https://jaspermatters.com/:splat"
-  status = 301
-  force = true
-
-# Redirect old portfolio paths if any
-[[redirects]]
-  from = "/portfolio"
-  to = "/"
-  status = 301
-
-[[redirects]]
-  from = "/about"
-  to = "/#about"
-  status = 301
-
-[[redirects]]
-  from = "/projects"
-  to = "/#projects"
-  status = 301
-
-[[redirects]]
-  from = "/contact"
-  to = "/#contact"
-  status = 301
-
-# Custom 404 page (create if needed)
+  
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Performance optimizations
-[[headers]]
-  for = "*.js"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+  force = false
 
 [[headers]]
-  for = "*.css"
+  for = "/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.png"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.jpg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.ico"
-  [headers.values]
-    Cache-Control = "public, max-age=86400"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
