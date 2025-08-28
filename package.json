@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Professional portfolio for Matthew Scott - AI/ML Engineer",
   "scripts": {
+    "build": "echo 'No build needed for static site' && exit 0",
     "serve": "python3 -m http.server 8080",
     "deploy-netlify": "netlify deploy --prod --dir=.",
     "deploy-vercel": "vercel --prod"
