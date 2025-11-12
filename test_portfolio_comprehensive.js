@@ -193,7 +193,7 @@ class PortfolioTester {
             name: 'Matthew Scott',
             title: 'AI/ML Engineer',
             phone: '502-345-0525',
-            github: '@guitargnar',
+            github: '@guitargnarr',
             location: 'Louisville, KY',
             projects: ['ZIGGY', 'Mirador', 'Security Copilot', 'LegalStream'],
             stats: ['109', '78', '26']
