@@ -212,6 +212,16 @@ function AppEnhanced() {
     }
   }
 
+  const deleteNote = async (id) => {
+    if (!confirm('Delete this note?')) return
+    try {
+      await axios.delete(`${API_ENDPOINT}/entries/${id}`)
+      loadNotes()
+    } catch (error) {
+      console.error('Error deleting note:', error)
+    }
+  }
+
   // ============= CALENDAR FUNCTIONS =============
   
   const loadCalendarMonth = async () => {
@@ -810,7 +820,7 @@ function AppEnhanced() {
                   borderColor: note.title.includes('Katie') ? '#fce7f3' : '#dbeafe'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
                         {note.title}
                       </p>
@@ -821,7 +831,26 @@ function AppEnhanced() {
                         {formatDistanceToNow(new Date(note.created_at), { addSuffix: true })}
                       </p>
                     </div>
-                    {note.title.includes('Katie') ? '💕' : '💙'}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '1.5rem' }}>
+                        {note.title.includes('Katie') || note.title.includes('Partner 1') ? '💕' : '💙'}
+                      </span>
+                      <button
+                        onClick={() => deleteNote(note.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '0.25rem',
+                          color: '#ef4444',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                        title="Delete note"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
