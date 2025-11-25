@@ -189,7 +189,7 @@ function Login({ onLogin }) {
 
         <div style={styles.info}>
           <strong>💕 Welcome to your shared space!</strong><br />
-          This is where you and Partner track your journey together.
+          Track your relationship journey together with goals, memories, and special moments.
           Use the password you both agreed on.
         </div>
       </div>
