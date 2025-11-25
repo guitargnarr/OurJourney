@@ -193,21 +193,23 @@ function Login({ onLogin, onShowPrivacy }) {
           Use the password you both agreed on.
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-          <button
-            onClick={onShowPrivacy}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#6b7280',
-              fontSize: '0.875rem',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            Privacy Policy
-          </button>
-        </div>
+        {onShowPrivacy && (
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <button
+              onClick={onShowPrivacy}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#6b7280',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              Privacy Policy
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
