@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Heart, Lock } from 'lucide-react';
 
-function Login({ onLogin }) {
+function Login({ onLogin, onShowPrivacy }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -191,6 +191,22 @@ function Login({ onLogin }) {
           <strong>💕 Welcome to your shared space!</strong><br />
           Track your relationship journey together with goals, memories, and special moments.
           Use the password you both agreed on.
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <button
+            onClick={onShowPrivacy}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#6b7280',
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            Privacy Policy
+          </button>
         </div>
       </div>
     </div>
