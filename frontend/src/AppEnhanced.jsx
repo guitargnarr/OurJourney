@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { formatDistanceToNow, format, differenceInDays, addDays } from 'date-fns'
-import { 
-  Heart, Calendar, Lightbulb, Plus, Edit2, Trash2, X, 
+import {
+  Heart, Calendar, Lightbulb, Plus, Edit2, Trash2, X,
   ChevronLeft, ChevronRight, Camera, MessageCircle, Cloud,
   Sun, CloudRain, Gift, Sparkles
 } from 'lucide-react'
 import Login from './Login'
+import PrivacyPolicy from './PrivacyPolicy'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const API_ENDPOINT = `${API_URL}/api`
@@ -30,6 +31,7 @@ const getWeather = async (date) => {
 function AppEnhanced() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeView, setActiveView] = useState('ideas')
+  const [showPrivacy, setShowPrivacy] = useState(false)
   const [ideas, setIdeas] = useState([])
   const [notes, setNotes] = useState([])
   const [calendarEvents, setCalendarEvents] = useState([])
@@ -330,7 +332,11 @@ function AppEnhanced() {
   const anniversary = getAnniversaryInfo()
 
   if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />
+    return <Login onLogin={handleLogin} onShowPrivacy={() => setShowPrivacy(true)} />
+  }
+
+  if (showPrivacy) {
+    return <PrivacyPolicy onClose={() => setShowPrivacy(false)} />
   }
 
   return (
@@ -469,20 +475,36 @@ function AppEnhanced() {
             </button>
           </div>
           
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#fee2e2',
-              color: '#991b1b',
-              border: 'none',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              cursor: 'pointer'
-            }}
-          >
-            Logout
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button
+              onClick={() => setShowPrivacy(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: 'transparent',
+                color: '#6b7280',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                textDecoration: 'underline'
+              }}
+            >
+              Privacy
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fee2e2',
+                color: '#991b1b',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                cursor: 'pointer'
+              }}
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
       
