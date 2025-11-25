@@ -61,7 +61,7 @@ export async function initializeDatabase() {
       await pool.query(`
         CREATE TABLE IF NOT EXISTS entries (
           id SERIAL PRIMARY KEY,
-          type TEXT NOT NULL CHECK(type IN ('goal', 'event', 'memory', 'ritual', 'feeling', 'idea', 'date')),
+          type TEXT NOT NULL CHECK(type IN ('goal', 'event', 'memory', 'ritual', 'feeling', 'idea', 'date', 'note')),
           title TEXT NOT NULL,
           content TEXT,
           category TEXT,
