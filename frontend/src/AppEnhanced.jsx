@@ -11,8 +11,9 @@ import Login from './Login'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const API_ENDPOINT = `${API_URL}/api`
 
-// Anniversary date - you can change this!
-const ANNIVERSARY_DATE = new Date('2024-01-01') // Update with your actual anniversary
+// Anniversary date - users can configure this in settings
+// For now, we'll hide the day counter to make the app generic
+const ANNIVERSARY_DATE = null // Disabled for generic app
 
 // Weather API (using wttr.in - no API key needed!)
 const getWeather = async (date) => {
@@ -41,7 +42,7 @@ function AppEnhanced() {
   
   // Form states
   const [newIdea, setNewIdea] = useState({ title: '', content: '', image: null })
-  const [newNote, setNewNote] = useState({ message: '', for_katie: true })
+  const [newNote, setNewNote] = useState({ message: '', for_partner1: true })
   const [editingIdea, setEditingIdea] = useState(null)
   const [showDayModal, setShowDayModal] = useState(false)
   const [newEvent, setNewEvent] = useState({ title: '', content: '', time: '' })
@@ -200,11 +201,11 @@ function AppEnhanced() {
     try {
       await axios.post(`${API_ENDPOINT}/entries`, {
         type: 'note',
-        title: newNote.for_katie ? 'For Katie 💕' : 'For Matt 💙',
+        title: newNote.for_partner1 ? 'For Partner 1 💕' : 'For Partner 2 💙',
         content: newNote.message,
-        author: newNote.for_katie ? 'matt' : 'katie'
+        author: newNote.for_partner1 ? 'partner2' : 'partner1'
       })
-      setNewNote({ message: '', for_katie: true })
+      setNewNote({ message: '', for_partner1: true })
       loadNotes()
     } catch (error) {
       console.error('Error creating note:', error)
@@ -401,7 +402,7 @@ function AppEnhanced() {
             <div>
               <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>OurJourney</h1>
               <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                Day {anniversary.daysTogether} together 💕
+                Building our story together 💕
               </p>
             </div>
           </div>
@@ -767,18 +768,18 @@ function AppEnhanced() {
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
                     type="radio"
-                    checked={newNote.for_katie}
-                    onChange={() => setNewNote({...newNote, for_katie: true})}
+                    checked={newNote.for_partner1}
+                    onChange={() => setNewNote({...newNote, for_partner1: true})}
                   />
-                  For Katie 💕
+                  For Partner 1 💕
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
                     type="radio"
-                    checked={!newNote.for_katie}
-                    onChange={() => setNewNote({...newNote, for_katie: false})}
+                    checked={!newNote.for_partner1}
+                    onChange={() => setNewNote({...newNote, for_partner1: false})}
                   />
-                  For Matt 💙
+                  For Partner 2 💙
                 </label>
               </div>
               <button
