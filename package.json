@@ -19,6 +19,6 @@
     "node": ">=18.0.0"
   },
   "keywords": ["couples", "relationship", "tracker"],
-  "author": "Matthew Scott",
+  "author": "",
   "license": "MIT"
 }

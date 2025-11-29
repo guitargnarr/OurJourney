@@ -124,8 +124,8 @@ function PrivacyPolicy({ onClose }) {
             For privacy-related questions or to request account deletion, contact:
           </p>
           <p style={{ marginTop: '1rem' }}>
-            <strong>Email:</strong> matthewdscott7@gmail.com<br />
-            <strong>Developer:</strong> Matthew Scott
+            <strong>Email:</strong> privacy@ourjourney.app<br />
+            <strong>Developer:</strong> OurJourney Team
           </p>
 
           <h2 style={{ fontSize: '1.5rem', marginTop: '2rem', marginBottom: '1rem' }}>GDPR Compliance</h2>
@@ -136,7 +136,7 @@ function PrivacyPolicy({ onClose }) {
             <li>Lawful basis for processing: Consent (by using the app)</li>
             <li>Data portability: Use Export feature to download your data</li>
             <li>Right to erasure: Contact us to delete your account</li>
-            <li>Data controller: Matthew Scott, matthewdscott7@gmail.com</li>
+            <li>Data controller: OurJourney Team, privacy@ourjourney.app</li>
           </ul>
 
           <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
