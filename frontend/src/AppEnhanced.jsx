@@ -344,7 +344,7 @@ function AppEnhanced() {
       {/* PWA Install Prompt */}
       {showInstallPrompt && (
         <div style={{
-          backgroundColor: '#8b5cf6',
+          backgroundColor: '#14b8a6',
           color: 'white',
           padding: '0.75rem',
           textAlign: 'center',
@@ -359,7 +359,7 @@ function AppEnhanced() {
             style={{
               padding: '0.5rem 1rem',
               backgroundColor: 'white',
-              color: '#8b5cf6',
+              color: '#14b8a6',
               border: 'none',
               borderRadius: '0.5rem',
               fontWeight: 'bold',
@@ -385,7 +385,7 @@ function AppEnhanced() {
       {/* Anniversary Banner */}
       {anniversary.isAnniversaryToday && (
         <div style={{
-          background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+          background: 'linear-gradient(90deg, #14b8a6, #f97316)',
           color: 'white',
           padding: '1rem',
           textAlign: 'center',
@@ -429,7 +429,7 @@ function AppEnhanced() {
               onClick={() => setActiveView('ideas')}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: activeView === 'ideas' ? '#8b5cf6' : 'white',
+                backgroundColor: activeView === 'ideas' ? '#14b8a6' : 'white',
                 color: activeView === 'ideas' ? 'white' : '#6b7280',
                 border: '1px solid #e5e7eb',
                 borderRadius: '0.5rem',
@@ -445,7 +445,7 @@ function AppEnhanced() {
               onClick={() => setActiveView('calendar')}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: activeView === 'calendar' ? '#8b5cf6' : 'white',
+                backgroundColor: activeView === 'calendar' ? '#14b8a6' : 'white',
                 color: activeView === 'calendar' ? 'white' : '#6b7280',
                 border: '1px solid #e5e7eb',
                 borderRadius: '0.5rem',
@@ -461,7 +461,7 @@ function AppEnhanced() {
               onClick={() => setActiveView('notes')}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: activeView === 'notes' ? '#8b5cf6' : 'white',
+                backgroundColor: activeView === 'notes' ? '#14b8a6' : 'white',
                 color: activeView === 'notes' ? 'white' : '#6b7280',
                 border: '1px solid #e5e7eb',
                 borderRadius: '0.5rem',
@@ -602,7 +602,7 @@ function AppEnhanced() {
                 style={{
                   marginTop: '0.75rem',
                   padding: '0.75rem 1.5rem',
-                  backgroundColor: '#8b5cf6',
+                  backgroundColor: '#14b8a6',
                   color: 'white',
                   border: 'none',
                   borderRadius: '0.5rem',
@@ -819,7 +819,7 @@ function AppEnhanced() {
                 style={{
                   marginTop: '1rem',
                   padding: '0.75rem 1.5rem',
-                  backgroundColor: '#ec4899',
+                  backgroundColor: '#f97316',
                   color: 'white',
                   border: 'none',
                   borderRadius: '0.5rem',
@@ -989,7 +989,7 @@ function AppEnhanced() {
                               transform: 'translateX(-50%)',
                               width: '6px',
                               height: '6px',
-                              backgroundColor: '#8b5cf6',
+                              backgroundColor: '#14b8a6',
                               borderRadius: '50%'
                             }} />
                           )}
@@ -1084,7 +1084,7 @@ function AppEnhanced() {
                       <div>
                         <div style={{ fontWeight: '500' }}>
                           {event.target_time && (
-                            <span style={{ color: '#8b5cf6', marginRight: '0.5rem' }}>
+                            <span style={{ color: '#14b8a6', marginRight: '0.5rem' }}>
                               {event.target_time.slice(0, 5)}
                             </span>
                           )}
@@ -1165,7 +1165,7 @@ function AppEnhanced() {
                 style={{
                   marginTop: '0.75rem',
                   padding: '0.75rem 1.5rem',
-                  backgroundColor: '#8b5cf6',
+                  backgroundColor: '#14b8a6',
                   color: 'white',
                   border: 'none',
                   borderRadius: '0.5rem',

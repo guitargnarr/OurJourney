@@ -42,7 +42,7 @@ function Login({ onLogin, onShowPrivacy }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 100%)',
       padding: '1rem',
     },
     card: {
@@ -103,7 +103,7 @@ function Login({ onLogin, onShowPrivacy }) {
     },
     button: {
       padding: '0.75rem',
-      backgroundColor: '#667eea',
+      backgroundColor: '#14b8a6',
       color: 'white',
       border: 'none',
       borderRadius: '0.5rem',
@@ -137,7 +137,7 @@ function Login({ onLogin, onShowPrivacy }) {
       <div style={styles.card}>
         <div style={styles.header}>
           <div style={styles.logo}>
-            <Heart size={32} color="#f43f5e" />
+            <Heart size={32} color="#f97316" />
             <h1 style={styles.title}>OurJourney</h1>
           </div>
           <p style={styles.subtitle}>Enter your shared password to continue</p>
@@ -162,7 +162,7 @@ function Login({ onLogin, onShowPrivacy }) {
               placeholder="Enter your shared password"
               style={styles.input}
               onFocus={(e) => {
-                e.target.style.borderColor = '#667eea';
+                e.target.style.borderColor = '#14b8a6';
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = '#e2e8f0';
@@ -177,10 +177,10 @@ function Login({ onLogin, onShowPrivacy }) {
             style={styles.button}
             disabled={loading}
             onMouseEnter={(e) => {
-              if (!loading) e.target.style.backgroundColor = '#764ba2';
+              if (!loading) e.target.style.backgroundColor = '#2dd4bf';
             }}
             onMouseLeave={(e) => {
-              if (!loading) e.target.style.backgroundColor = '#667eea';
+              if (!loading) e.target.style.backgroundColor = '#14b8a6';
             }}
           >
             {loading ? 'Logging in...' : 'Enter OurJourney'}

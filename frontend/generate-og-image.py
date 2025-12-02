@@ -14,12 +14,13 @@ def create_og_image() -> Image.Image:
     img = Image.new('RGB', (width, height))
     draw = ImageDraw.Draw(img)
 
-    # Gradient background (rose to purple)
+    # Gradient background (teal to orange)
+    # Teal: #14b8a6 (20, 184, 166) to Orange: #f97316 (249, 115, 22)
     for y in range(height):
         ratio = y / height
-        r = int(244 * (1 - ratio) + 168 * ratio)
-        g = int(63 * (1 - ratio) + 85 * ratio)
-        b = int(94 * (1 - ratio) + 247 * ratio)
+        r = int(20 * (1 - ratio) + 249 * ratio)
+        g = int(184 * (1 - ratio) + 115 * ratio)
+        b = int(166 * (1 - ratio) + 22 * ratio)
         draw.line([(0, y), (width, y)], fill=(r, g, b))
 
     # Draw heart on left side
