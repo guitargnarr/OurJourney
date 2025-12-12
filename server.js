@@ -7,9 +7,78 @@ import { getCustodyStatus, getMonthCustody, getNextDateNights } from './custodyS
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ============= SECURITY: CORS Configuration =============
+const ALLOWED_ORIGINS = [
+  'https://ourjourney-app.vercel.app',
+  'http://localhost:5173',  // Vite dev server
+  'http://localhost:3000',  // Alternative dev server
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// ============= SECURITY: Rate Limiting =============
+const rateLimitStore = new Map();
+
+function rateLimit(windowMs = 60000, maxRequests = 100) {
+  return (req, res, next) => {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+    const key = `${ip}:${req.path}`;
+    const now = Date.now();
+
+    const entry = rateLimitStore.get(key);
+    if (entry && now < entry.resetTime) {
+      entry.count++;
+      if (entry.count > maxRequests) {
+        return res.status(429).json({
+          error: 'Too many requests. Please try again later.',
+          resetIn: Math.ceil((entry.resetTime - now) / 1000)
+        });
+      }
+    } else {
+      rateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
+    }
+
+    next();
+  };
+}
+
+// ============= SECURITY: Field Allowlist (Prevent SQL Injection) =============
+const ALLOWED_ENTRY_FIELDS = new Set([
+  'type', 'title', 'content', 'category', 'mood',
+  'target_date', 'target_time', 'end_date', 'tags',
+  'author', 'status', 'progress', 'location',
+  'recurrence', 'reminder_minutes'
+]);
+
+function sanitizeUpdateFields(updates) {
+  const sanitized = {};
+  for (const [key, value] of Object.entries(updates)) {
+    if (ALLOWED_ENTRY_FIELDS.has(key)) {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use(rateLimit(60000, 100)); // 100 requests per minute per IP
 
 // Initialize database on startup
 await initializeDatabase();
@@ -72,18 +141,24 @@ app.put('/api/entries/:id', async (req, res) => {
   try {
     const db = await openDb();
     const { id } = req.params;
-    const updates = req.body;
-    
-    // Build dynamic update query
-    const fields = Object.keys(updates).filter(k => k !== 'id');
+
+    // SECURITY: Sanitize fields to prevent SQL injection via field names
+    const updates = sanitizeUpdateFields(req.body);
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    // Build dynamic update query with ONLY allowed fields
+    const fields = Object.keys(updates);
     const setClause = fields.map(f => `${f} = ?`).join(', ');
     const values = fields.map(f => f === 'tags' ? JSON.stringify(updates[f]) : updates[f]);
-    
+
     await db.run(
       `UPDATE entries SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
       [...values, id]
     );
-    
+
     const updated = await db.get('SELECT * FROM entries WHERE id = ?', id);
     res.json(updated);
   } catch (error) {
