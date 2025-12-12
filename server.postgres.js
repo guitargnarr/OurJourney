@@ -30,6 +30,52 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// ============= SECURITY: Rate Limiting =============
+const rateLimitStore = new Map();
+
+function rateLimit(windowMs = 60000, maxRequests = 100) {
+  return (req, res, next) => {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+    const key = `${ip}:${req.path}`;
+    const now = Date.now();
+
+    const entry = rateLimitStore.get(key);
+    if (entry && now < entry.resetTime) {
+      entry.count++;
+      if (entry.count > maxRequests) {
+        return res.status(429).json({
+          error: 'Too many requests. Please try again later.',
+          resetIn: Math.ceil((entry.resetTime - now) / 1000)
+        });
+      }
+    } else {
+      rateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
+    }
+
+    next();
+  };
+}
+
+app.use(rateLimit(60000, 100)); // 100 requests per minute per IP
+
+// ============= SECURITY: Field Allowlist (Prevent SQL Injection) =============
+const ALLOWED_ENTRY_FIELDS = new Set([
+  'type', 'title', 'content', 'category', 'mood',
+  'target_date', 'target_time', 'end_date', 'tags',
+  'author', 'status', 'progress', 'location',
+  'recurrence', 'reminder_minutes'
+]);
+
+function sanitizeUpdateFields(updates) {
+  const sanitized = {};
+  for (const [key, value] of Object.entries(updates)) {
+    if (ALLOWED_ENTRY_FIELDS.has(key)) {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+
 // Initialize database on startup
 await initializeDatabase();
 
@@ -107,31 +153,35 @@ app.post('/api/entries', requireAuth, async (req, res) => {
 app.put('/api/entries/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
-    
-    // Build dynamic update query
+
+    // SECURITY: Sanitize fields to prevent SQL injection via field names
+    const updates = sanitizeUpdateFields(req.body);
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    // Build dynamic update query with ONLY allowed fields
     const setClause = [];
     const values = [];
     let paramIndex = 1;
-    
+
     Object.entries(updates).forEach(([key, value]) => {
-      if (key !== 'id') {
-        setClause.push(`${key} = $${paramIndex++}`);
-        values.push(key === 'tags' ? JSON.stringify(value) : value);
-      }
+      setClause.push(`${key} = $${paramIndex++}`);
+      values.push(key === 'tags' ? JSON.stringify(value) : value);
     });
-    
+
     values.push(id);
-    
+
     const result = await db.query(
       `UPDATE entries SET ${setClause.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
       values
     );
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Entry not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating entry:', error);
