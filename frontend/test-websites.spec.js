@@ -37,14 +37,9 @@ test.describe('OurJourney App Testing', () => {
       console.log(`  After login - Calendar tab: ${calendarTab > 0}`);
       console.log(`  After login - Notes tab: ${notesTab > 0}`);
 
-      // Check for Partner vs Partner/Matt
+      // Check for generic partner branding
       const partnerText = await page.locator('text=Partner').count();
-      const partnerText = await page.locator('text=Partner').count();
-      const mattText = await page.locator('text=Matt').count();
-
       console.log(`  Generic branding (Partner): ${partnerText} occurrences`);
-      console.log(`  Hardcoded names (Partner): ${partnerText} occurrences`);
-      console.log(`  Hardcoded names (Matt): ${mattText} occurrences`);
     }
 
     await page.screenshot({ path: 'ourjourney-app-screenshot.png', fullPage: true });
@@ -87,14 +82,9 @@ test.describe('OurJourney App Testing', () => {
       console.log(`  After login - Calendar tab: ${calendarTab > 0}`);
       console.log(`  After login - Notes tab: ${notesTab > 0}`);
 
-      // Check for Partner vs Partner/Matt
+      // Check for generic partner branding
       const partnerText = await page.locator('text=Partner').count();
-      const partnerText = await page.locator('text=Partner').count();
-      const mattText = await page.locator('text=Matt').count();
-
       console.log(`  Generic branding (Partner): ${partnerText} occurrences`);
-      console.log(`  Hardcoded names (Partner): ${partnerText} occurrences`);
-      console.log(`  Hardcoded names (Matt): ${mattText} occurrences`);
 
       // Test creating a note
       await page.click('text=Notes');

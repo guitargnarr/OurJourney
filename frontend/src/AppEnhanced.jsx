@@ -839,7 +839,7 @@ function AppEnhanced() {
                   padding: '1.25rem',
                   borderRadius: '0.75rem',
                   border: '2px solid',
-                  borderColor: note.title.includes('Partner') ? '#fce7f3' : '#dbeafe'
+                  borderColor: note.title.includes('Partner 1') ? '#fce7f3' : '#dbeafe'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
@@ -855,7 +855,7 @@ function AppEnhanced() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span style={{ fontSize: '1.5rem' }}>
-                        {note.title.includes('Partner') || note.title.includes('Partner 1') ? '💕' : '💙'}
+                        {note.title.includes('Partner 1') ? '💕' : '💙'}
                       </span>
                       <button
                         onClick={() => deleteNote(note.id)}
