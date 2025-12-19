@@ -6,11 +6,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/icon-16.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OurJourney - Track Your Love Story</title>
-    
+    <title>OurJourney - Offline-First Life Planning PWA | Service Workers + IndexedDB</title>
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
-    
+
     <!-- iOS PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -18,26 +18,56 @@
     <link rel="apple-touch-icon" href="/icon-180.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-    
+
     <!-- Theme Color -->
     <meta name="theme-color" content="#14b8a6" />
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Track your relationship journey together with shared goals, events, and memories" />
+    <meta name="description" content="Progressive Web App demonstrating offline-first architecture, service worker caching, IndexedDB persistence, and real-time sync. Built with React, Vite, and Supabase." />
+    <meta name="keywords" content="PWA, Progressive Web App, offline-first, service worker, IndexedDB, React, Vite, Supabase, real-time sync" />
+    <meta name="author" content="Matthew Scott" />
+    <link rel="canonical" href="https://ourjourney.projectlavos.com" />
 
     <!-- Open Graph / Social Preview -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="OurJourney - Track Your Story Together" />
-    <meta property="og:description" content="A beautiful app for couples to track goals, memories, and special moments together." />
-    <meta property="og:image" content="https://ourjourney-app.vercel.app/og-image.png" />
+    <meta property="og:url" content="https://ourjourney.projectlavos.com" />
+    <meta property="og:title" content="OurJourney - Offline-First PWA Architecture Demo" />
+    <meta property="og:description" content="Technical demonstration of Progressive Web App patterns: service workers, IndexedDB, background sync, offline-first architecture." />
+    <meta property="og:image" content="https://ourjourney.projectlavos.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Project Lavos Portfolio" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="OurJourney - Track Your Story Together" />
-    <meta name="twitter:description" content="A beautiful app for couples to track goals, memories, and special moments together." />
-    <meta name="twitter:image" content="https://ourjourney-app.vercel.app/og-image.png" />
+    <meta name="twitter:title" content="OurJourney - Offline-First PWA Demo" />
+    <meta name="twitter:description" content="Progressive Web App demonstrating offline-first architecture, service worker caching, and real-time sync." />
+    <meta name="twitter:image" content="https://ourjourney.projectlavos.com/og-image.png" />
+
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "OurJourney",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web Browser",
+      "description": "Progressive Web App demonstrating offline-first architecture with service workers, IndexedDB persistence, and real-time Supabase sync.",
+      "author": {
+        "@type": "Person",
+        "name": "Matthew Scott"
+      },
+      "url": "https://ourjourney.projectlavos.com",
+      "featureList": [
+        "Offline-first architecture",
+        "Service worker caching",
+        "IndexedDB persistence",
+        "Real-time Supabase sync",
+        "iOS PWA support",
+        "Background sync"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

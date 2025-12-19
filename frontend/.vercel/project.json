@@ -1,1 +1,16 @@
-{"projectId":"prj_Kl898giINqXpUJFKkh3ZQFoydYCP","orgId":"team_vIPttJ4pjcWb246gsLzNnkbB","projectName":"frontend"}
+{
+  "projectId": "prj_5gbcDFne4PqvxGtK4vUO1HhYj3fm",
+  "orgId": "team_vIPttJ4pjcWb246gsLzNnkbB",
+  "projectName": "ourjourney-app",
+  "settings": {
+    "createdAt": 1757163379072,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}

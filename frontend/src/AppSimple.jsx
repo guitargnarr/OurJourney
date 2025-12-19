@@ -473,7 +473,7 @@ function AppSimple() {
                   ))}
                 </div>
                 <p style={{ fontSize: '12px', marginTop: '1rem', opacity: 0.9 }}>
-                  These evenings you're free (Child is with mom)
+                  These evenings are free for date nights
                 </p>
               </div>
             )}

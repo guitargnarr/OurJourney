@@ -331,7 +331,7 @@ function Calendar() {
                           color: custody.isYourDay ? 'white' : '#6b7280',
                           fontWeight: '500'
                         }}>
-                          {custody.isYourDay ? 'Child' : 'Free'}
+                          {custody.isYourDay ? 'Your Day' : 'Free'}
                         </div>
                       )}
                     </div>

@@ -6,7 +6,7 @@
  * Week 2: You have Mon/Tue & Fri-Sun, Mom has Wed/Thu
  */
 
-// Sunday, Week 1, Day 0 - You have Child this weekend
+// Sunday, Week 1, Day 0 - You have custody this weekend
 // Using UTC to avoid timezone issues
 const CYCLE_START = new Date(Date.UTC(2025, 7, 17, 0, 0, 0)); // Note: month is 0-indexed, so 7 = August
 
@@ -121,7 +121,7 @@ function getCustodyRange(startDate, endDate) {
 }
 
 /**
- * Find next available date night (when you don't have Child)
+ * Find next available date night (when you don't have custody)
  * @param {Date|string} fromDate - Start searching from this date
  * @param {number} count - How many date nights to find
  */

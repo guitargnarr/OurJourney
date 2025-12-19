@@ -140,15 +140,15 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-teal-50 hero-gradient">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-rose-200 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between animate-fade-in-up">
             <div className="flex items-center gap-3">
               <Heart className="w-8 h-8 text-rose-500" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">OurJourney</h1>
+                <h1 className="text-2xl font-bold text-gray-800 text-shimmer">OurJourney</h1>
                 <p className="text-sm text-gray-600">Building our story together</p>
               </div>
             </div>
@@ -284,7 +284,7 @@ function App() {
             )}
 
             {/* Active Goals */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="card-elite bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <Target className="w-5 h-5 text-green-600" />
@@ -329,7 +329,7 @@ function App() {
             </div>
 
             {/* Recent Memories */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="card-elite bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <Heart className="w-5 h-5 text-rose-600" />
@@ -370,7 +370,7 @@ function App() {
         )}
 
         {activeView === 'timeline' && (
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="card-elite bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-2xl font-bold mb-6">Our Journey Timeline</h2>
             <div className="space-y-4">
               {entries.map((entry, index) => (
@@ -411,7 +411,7 @@ function App() {
 
         {activeView === 'goals' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="card-elite bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-2xl font-bold mb-6">Our Goals</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {entries
