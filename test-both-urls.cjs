@@ -38,9 +38,7 @@ async function testApp(url, name) {
       if (hasNav) {
         // Check for generic branding
         const hasPartner = await page.locator('text=Partner').count() > 0;
-        const hasPartner = await page.locator('text=Partner').count() > 0;
         console.log(`${hasPartner ? '✅' : '❌'} Generic branding (Partner 1/2): ${hasPartner}`);
-        console.log(`${hasPartner ? '⚠️' : '✅'} Old names (Partner/Matt): ${hasPartner ? 'Still present' : 'Removed'}`);
       }
     }
 
