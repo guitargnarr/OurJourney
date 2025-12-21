@@ -30,3 +30,4 @@ Thumbs.db
 *.tmp
 *.swp
 .vercel
+test-results/

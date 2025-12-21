@@ -160,13 +160,17 @@ function Login({ onLogin, onShowPrivacy }) {
     },
     tab: {
       flex: 1,
-      padding: '0.625rem',
+      padding: '0.75rem',
+      minHeight: '44px',
       border: 'none',
       borderRadius: '0.375rem',
       fontSize: '0.875rem',
       fontWeight: '500',
       cursor: 'pointer',
       transition: 'all 0.2s',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     tabActive: {
       backgroundColor: '#14b8a6',
@@ -214,17 +218,21 @@ function Login({ onLogin, onShowPrivacy }) {
     },
     eyeButton: {
       position: 'absolute',
-      right: '0.75rem',
+      right: '0.25rem',
       background: 'none',
       border: 'none',
       cursor: 'pointer',
       color: '#64748b',
-      padding: '0.25rem',
+      padding: '0.5rem',
+      minWidth: '44px',
+      minHeight: '44px',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
     },
     button: {
       padding: '0.875rem',
+      minHeight: '44px',
       backgroundColor: '#14b8a6',
       color: 'white',
       border: 'none',
@@ -234,9 +242,13 @@ function Login({ onLogin, onShowPrivacy }) {
       cursor: 'pointer',
       transition: 'background-color 0.2s',
       marginTop: '0.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     buttonSecondary: {
       padding: '0.875rem',
+      minHeight: '44px',
       backgroundColor: 'transparent',
       color: '#f97316',
       border: '2px solid #f97316',
@@ -521,7 +533,12 @@ function Login({ onLogin, onShowPrivacy }) {
                 color: '#64748b',
                 fontSize: '0.875rem',
                 cursor: 'pointer',
-                textDecoration: 'underline'
+                textDecoration: 'underline',
+                minHeight: '44px',
+                padding: '0.75rem 1rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
               Privacy Policy
