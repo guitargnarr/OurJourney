@@ -428,7 +428,8 @@ function AppEnhanced() {
             <button
               onClick={() => setActiveView('ideas')}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1rem',
+                minHeight: '44px',
                 backgroundColor: activeView === 'ideas' ? '#14b8a6' : 'white',
                 color: activeView === 'ideas' ? 'white' : '#6b7280',
                 border: '1px solid #e5e7eb',
@@ -444,7 +445,8 @@ function AppEnhanced() {
             <button
               onClick={() => setActiveView('calendar')}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1rem',
+                minHeight: '44px',
                 backgroundColor: activeView === 'calendar' ? '#14b8a6' : 'white',
                 color: activeView === 'calendar' ? 'white' : '#6b7280',
                 border: '1px solid #e5e7eb',
@@ -460,7 +462,8 @@ function AppEnhanced() {
             <button
               onClick={() => setActiveView('notes')}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1rem',
+                minHeight: '44px',
                 backgroundColor: activeView === 'notes' ? '#14b8a6' : 'white',
                 color: activeView === 'notes' ? 'white' : '#6b7280',
                 border: '1px solid #e5e7eb',
@@ -479,13 +482,16 @@ function AppEnhanced() {
             <button
               onClick={() => setShowPrivacy(true)}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1rem',
+                minHeight: '44px',
                 backgroundColor: 'transparent',
                 color: '#6b7280',
                 border: 'none',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
-                textDecoration: 'underline'
+                textDecoration: 'underline',
+                display: 'flex',
+                alignItems: 'center'
               }}
             >
               Privacy
@@ -493,13 +499,16 @@ function AppEnhanced() {
             <button
               onClick={handleLogout}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1rem',
+                minHeight: '44px',
                 backgroundColor: '#fee2e2',
                 color: '#991b1b',
                 border: 'none',
                 borderRadius: '0.5rem',
                 fontSize: '0.875rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
               }}
             >
               Logout
@@ -602,6 +611,7 @@ function AppEnhanced() {
                 style={{
                   marginTop: '0.75rem',
                   padding: '0.75rem 1.5rem',
+                  minHeight: '44px',
                   backgroundColor: '#14b8a6',
                   color: 'white',
                   border: 'none',
