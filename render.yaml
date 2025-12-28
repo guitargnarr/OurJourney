@@ -1,21 +1,25 @@
 services:
+  # OurJourney API Backend
   - type: web
-    name: matthew-scott-portfolio
-    runtime: static
-    buildCommand: "echo 'No build needed for static site'"
-    staticPublishPath: .
-    pullRequestPreviewsEnabled: true
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: SAMEORIGIN
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: X-XSS-Protection
-        value: "1; mode=block"
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    name: ourjourney-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ourjourney-db
+          property: connectionString
+      - key: AUTH_PASSWORD
+        sync: false  # Set manually in Render dashboard
+      - key: CORS_ORIGIN
+        value: https://ourjourney-app.vercel.app
+    healthCheckPath: /api/health
+
+databases:
+  - name: ourjourney-db
+    plan: free
+    databaseName: ourjourney
+    user: ourjourney_user
