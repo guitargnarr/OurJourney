@@ -122,6 +122,36 @@ test.describe('OurJourney - Mobile Responsiveness', () => {
   });
 });
 
+test.describe('OurJourney - API Connectivity', () => {
+  test('API health endpoint responds', async ({ request }) => {
+    const response = await request.get('https://ourjourney-api.onrender.com/api/health');
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.status).toBe('healthy');
+  });
+
+  test('Demo login flow works', async ({ page }) => {
+    await page.goto('https://ourjourney-app.vercel.app');
+    await page.waitForLoadState('networkidle');
+
+    // Click Try Demo button
+    const demoButton = page.locator('button:has-text("Try Demo")');
+    await expect(demoButton).toBeVisible();
+    await demoButton.click();
+
+    // Wait for demo login to process
+    await page.waitForTimeout(2000);
+
+    // After demo login, should see demo password or be logged in
+    // Demo mode shows password on the login page
+    const demoPassword = page.locator('code, [class*="demo"]');
+    const isLoggedIn = await page.locator('text=/Ideas|Calendar|Notes|Logout/i').count() > 0;
+    const hasDemoPassword = await demoPassword.count() > 0;
+
+    expect(isLoggedIn || hasDemoPassword).toBe(true);
+  });
+});
+
 test.describe('OurJourney - Accessibility', () => {
   test('Interactive elements are focusable', async ({ page }) => {
     await page.goto('https://ourjourney-app.vercel.app');
