@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ourjourney.projectlavos.com/sitemap.xml
