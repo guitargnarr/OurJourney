@@ -331,7 +331,7 @@ function Login({ onLogin, onShowPrivacy }) {
 
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
+      <main role="main" style={styles.card}>
         <div style={styles.header}>
           <div style={styles.logo}>
             <Heart size={32} color="#f97316" fill="#f97316" />
@@ -404,6 +404,7 @@ function Login({ onLogin, onShowPrivacy }) {
                   type="button"
                   style={styles.eyeButton}
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -457,6 +458,7 @@ function Login({ onLogin, onShowPrivacy }) {
                   type="button"
                   style={styles.eyeButton}
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -545,7 +547,7 @@ function Login({ onLogin, onShowPrivacy }) {
             </button>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

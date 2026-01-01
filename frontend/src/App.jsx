@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { format, formatDistanceToNow, differenceInDays, startOfWeek } from 'date-fns'
-import { 
-  Heart, Plus, Target, Calendar, Sparkles, Clock, 
+import {
+  Heart, Plus, Target, Calendar, Sparkles, Clock,
   TrendingUp, MessageCircle, Trophy, Star, ChevronRight,
   Zap, Users, Gift
 } from 'lucide-react'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import './App.css'
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`
@@ -140,6 +142,9 @@ function App() {
   }
 
   return (
+    <>
+    <Analytics />
+    <SpeedInsights />
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-teal-50 hero-gradient">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-rose-200 sticky top-0 z-40">
@@ -459,6 +464,7 @@ function App() {
         )}
       </main>
     </div>
+    </>
   )
 }
 
