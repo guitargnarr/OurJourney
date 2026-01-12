@@ -173,7 +173,7 @@ function Login({ onLogin, onShowPrivacy }) {
       justifyContent: 'center',
     },
     tabActive: {
-      backgroundColor: '#14b8a6',
+      backgroundColor: '#0f766e',
       color: 'white',
     },
     tabInactive: {
@@ -222,7 +222,7 @@ function Login({ onLogin, onShowPrivacy }) {
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      color: '#64748b',
+      color: '#94a3b8',
       padding: '0.5rem',
       minWidth: '44px',
       minHeight: '44px',
@@ -233,7 +233,7 @@ function Login({ onLogin, onShowPrivacy }) {
     button: {
       padding: '0.875rem',
       minHeight: '44px',
-      backgroundColor: '#14b8a6',
+      backgroundColor: '#0f766e',
       color: 'white',
       border: 'none',
       borderRadius: '0.5rem',
@@ -276,7 +276,7 @@ function Login({ onLogin, onShowPrivacy }) {
       alignItems: 'center',
       gap: '1rem',
       margin: '1rem 0',
-      color: '#64748b',
+      color: '#94a3b8',
       fontSize: '0.875rem',
     },
     dividerLine: {
@@ -532,7 +532,7 @@ function Login({ onLogin, onShowPrivacy }) {
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#64748b',
+                color: '#94a3b8',
                 fontSize: '0.875rem',
                 cursor: 'pointer',
                 textDecoration: 'underline',
