@@ -85,6 +85,16 @@ function sanitizeUpdateFields(updates) {
 // Initialize database on startup
 await initializeDatabase();
 
+// --- Hash shared password (awaited, no race condition) ---
+// Prefer AUTH_PASSWORD_HASH (pre-hashed bcrypt) to avoid re-hashing on every startup.
+// Falls back to hashing AUTH_PASSWORD at boot if no pre-hashed value is provided.
+let hashedPassword = null;
+if (process.env.AUTH_PASSWORD_HASH) {
+  hashedPassword = process.env.AUTH_PASSWORD_HASH;
+} else if (process.env.AUTH_PASSWORD) {
+  hashedPassword = await bcrypt.hash(process.env.AUTH_PASSWORD, 10);
+}
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
@@ -532,15 +542,6 @@ app.get('/api/custody/date-nights', (req, res) => {
 });
 
 // ============= AUTH ROUTE =============
-
-// Hash the shared password on startup for bcrypt comparison
-let hashedPassword = null;
-(async () => {
-  const rawPassword = process.env.AUTH_PASSWORD;
-  if (rawPassword) {
-    hashedPassword = await bcrypt.hash(rawPassword, 10);
-  }
-})();
 
 // Dedicated login rate limiter: 5 attempts per minute per IP
 const loginRateLimit = rateLimit(60000, 5);
