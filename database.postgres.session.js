@@ -9,23 +9,11 @@ const { Pool } = pg;
 let connectionConfig;
 
 if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
-  // Modify URL to use session pooling port (5432 -> 6543)
-  // This provides IPv4 compatibility
-  let dbUrl = process.env.DATABASE_URL;
-  
-  // Replace port 5432 with 6543 for session pooling
-  dbUrl = dbUrl.replace(':5432/', ':6543/');
-  // Add pgbouncer=true for session mode
-  dbUrl = dbUrl.includes('?') ? `${dbUrl}&pgbouncer=true` : `${dbUrl}?pgbouncer=true`;
-  
-  console.log('🔗 Using Supabase session pooling for IPv4 compatibility');
-  
+  console.log('Using production PostgreSQL (Neon)');
+
   connectionConfig = {
-    connectionString: dbUrl,
+    connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    // Important: Set statement_timeout for session pooling
-    statement_timeout: 60000,
-    idle_in_transaction_session_timeout: 60000
   };
 } else {
   // Local development
