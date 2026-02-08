@@ -1,11 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { initializeDatabase, db } from './database.postgres.session.js';
 import { format, addDays, startOfWeek, differenceInDays } from 'date-fns';
 import { getCustodyStatus, getMonthCustody, getNextDateNights } from './custodySchedule.js';
 
 dotenv.config();
+
+// --- JWT Config ---
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+const JWT_EXPIRY = '7d';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -87,12 +93,21 @@ app.get('/api/health', (req, res) => {
 // ============= AUTH MIDDLEWARE =============
 const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  
-  if (!authHeader || authHeader !== `Bearer ${process.env.AUTH_PASSWORD}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing auth token' });
   }
-  
-  next();
+
+  const token = authHeader.slice(7);
+  try {
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
+    return res.status(401).json({ error: 'Invalid token' });
+  }
 };
 
 // ============= ENTRIES ROUTES =============
@@ -517,18 +532,34 @@ app.get('/api/custody/date-nights', (req, res) => {
 });
 
 // ============= AUTH ROUTE =============
-app.post('/api/auth/login', async (req, res) => {
+
+// Hash the shared password on startup for bcrypt comparison
+let hashedPassword = null;
+(async () => {
+  const rawPassword = process.env.AUTH_PASSWORD;
+  if (rawPassword) {
+    hashedPassword = await bcrypt.hash(rawPassword, 10);
+  }
+})();
+
+// Dedicated login rate limiter: 5 attempts per minute per IP
+const loginRateLimit = rateLimit(60000, 5);
+
+app.post('/api/auth/login', loginRateLimit, async (req, res) => {
   try {
     const { password } = req.body;
-    
-    if (password === process.env.AUTH_PASSWORD) {
-      res.json({ 
-        success: true, 
-        token: process.env.AUTH_PASSWORD 
-      });
-    } else {
-      res.status(401).json({ error: 'Invalid password' });
+
+    if (!password || !hashedPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    const valid = await bcrypt.compare(password, hashedPassword);
+    if (!valid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ sub: 'shared' }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+    res.json({ success: true, token });
   } catch (error) {
     console.error('Auth error:', error);
     res.status(500).json({ error: error.message });

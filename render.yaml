@@ -13,7 +13,9 @@ services:
           name: ourjourney-db
           property: connectionString
       - key: AUTH_PASSWORD
-        sync: false  # Set manually in Render dashboard
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: CORS_ORIGIN
         value: https://ourjourney-app.vercel.app
     healthCheckPath: /api/health
